@@ -1,0 +1,35 @@
+name: Pipeline CI-CD TPO2
+
+# Se dispara al hacer push a la rama main
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  testing-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Descargar codigo
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Ejecutar pruebas con Pytest
+      run: |
+        pytest --html=reporte_final.html --self-contained-html
+
+    - name: Guardar reporte como artefacto
+      if: always() # Se guarda aunque fallen los tests
+      uses: actions/upload-artifact@v4
+      with:
+        name: reporte-de-calidad
+        path: reporte_final.html
